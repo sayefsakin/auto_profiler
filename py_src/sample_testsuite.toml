@@ -1,0 +1,21 @@
+testsuite_name = "SCOPFLOW Functionality"
+
+[presets]
+netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
+ctgcfile = '/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9.cont'
+scopflow_mode = 1
+scopflow_Nc = 3
+hiop_verbosity_level = 0
+print_output = 0
+
+[[testcase]]
+scopflow_solver = 'EMPAR'
+hiop_compute_mode = 'CPU'
+scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+scopflow_subproblem_solver = 'IPOPT'
+
+[[testcase]]
+scopflow_solver = 'IPOPT'
+hiop_compute_mode = 'CPU'
+scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+scopflow_subproblem_solver = 'IPOPT'
