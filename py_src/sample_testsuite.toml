@@ -11,6 +11,8 @@ hiop_verbosity_level = 0
 print_output = 0
 
 [[profiler]]
+
+[[profiler]]
 tool = 'hpcrun'
 tool_args = '--disable-auditor -t -o /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
 
@@ -29,8 +31,8 @@ hiop_compute_mode = 'CPU'
 scopflow_subproblem_model = 'POWER_BALANCE_HIOP'
 scopflow_subproblem_solver = 'HIOP'
 
-#[[testcase]]
-#scopflow_solver = 'EMPAR'
-#hiop_compute_mode = 'CPU'
-#scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
-#scopflow_subproblem_solver = 'IPOPT'
+[[testcase]]
+scopflow_solver = 'EMPAR'
+hiop_compute_mode = 'CPU'
+scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+scopflow_subproblem_solver = 'IPOPT'

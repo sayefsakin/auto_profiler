@@ -5,6 +5,7 @@ import shutil
 import os
 import time
 import re
+import math
 from subprocess import call, Popen, PIPE
 
 #
@@ -20,17 +21,29 @@ def print_debug(level, str):
 
 def do_perf_measure(in_file):
     testsuite = toml.load(in_file)
-    params = testsuite['presets'];
+    if 'application' not in testsuite:
+        print_debug(0, "Please provide application")
+    if 'presets' not in testsuite:
+        print_debug(0, "Please provide presets")
+
     app_name = testsuite['application']
+    params = testsuite['presets'];
+    iterations = 1
+    if 'iterations' in testsuite:
+        iterations = testsuite['iterations']
 
     mpi_cmd = None
     if "mpi_rank" in testsuite:
         mpi_cmd = ["mpiexec", "-n", str(testsuite['mpi_rank'])]
 
-    profiler_cmd_list = [[]]
+    profiler_cmd_list = list()
     my_env = os.environ.copy()
     if "profiler" in testsuite:
         for prof in testsuite['profiler']:
+            if 'tool' not in prof:
+                prof_tool = 'no tool'
+                profiler_cmd_list.append([])
+                continue
             prof_tool = prof['tool']
             if shutil.which(prof_tool) is None:
                 print_debug(0, prof_tool + ' not installed')
@@ -56,14 +69,19 @@ def do_perf_measure(in_file):
         print_debug(0, app_name + ' not installed')
         return
     
-    for profiler_cmd in profiler_cmd_list:
-        for tests in testsuite['testcase']:
+    test_number = 1
+    for tests in testsuite['testcase']:
+        print_debug(0, "For testcase " + str(test_number))
+        test_number = test_number + 1
+        for profiler_cmd in profiler_cmd_list:
             command = list()
             #command.append("time")
             if mpi_cmd is not None:
                 command.extend(mpi_cmd)
             
+            tool_name = 'no tool'
             if profiler_cmd:
+                tool_name = profiler_cmd[0]
                 command.extend(profiler_cmd)
             
             command.append(app_name)
@@ -80,24 +98,28 @@ def do_perf_measure(in_file):
             exago_runs_successfully = False
             suc_str = 'Finalizing ' + app_name + ' application.'
 
-            timeStarted = time.time()
-            proc = Popen(command, stdout=PIPE, universal_newlines=True, env=my_env)
+            time_lists = list()
+            for i in range(iterations):
+                timeStarted = time.time()
+                proc = Popen(command, stdout=PIPE, universal_newlines=True, env=my_env)
 
-            for line in proc.stdout.readlines():
-                #print(line, end='')
-                if exago_runs_successfully is False and suc_str in line:
-                    exago_runs_successfully = True
+                for line in proc.stdout.readlines():
+                    #print(line, end='')
+                    if exago_runs_successfully is False and suc_str in line:
+                        exago_runs_successfully = True
     
-            timeDelta = time.time() - timeStarted
-            if exago_runs_successfully:
-                print_debug(1, app_name + " runs successfully")
-                tool_name = 'no tool'
-                if profiler_cmd:
-                    tool_name = profiler_cmd[0]
-                print_debug(0, "Time measured for " + tool_name + ": " + str(timeDelta) + " seconds.")
-            else:
-                print_debug(0, app_name + " did NOT run")
-            break
+                timeDelta = time.time() - timeStarted
+                if exago_runs_successfully:
+                    print_debug(1, app_name + " runs successfully")
+                    time_lists.append(timeDelta)
+                    print_debug(2, "Total measured time with " + tool_name + ": " + str(round(timeDelta,5)) + " seconds.")
+                else:
+                    print_debug(0, app_name + " did NOT run with " + tool_name)
+            avg_tm = sum(time_lists) / len(time_lists)
+            var  = sum(pow(x-avg_tm,2) for x in time_lists) / len(time_lists)
+            avg_tm_str = str(round(avg_tm,5))
+            avg_std = str(round(math.sqrt(var),5))
+            print_debug(0, "With " + tool_name + " Average time: " + avg_tm_str + " secs with std: " + avg_std)
 
 if __name__ == '__main__':
     in_file = "sample_testsuite.toml"
