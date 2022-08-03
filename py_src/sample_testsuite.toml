@@ -10,13 +10,18 @@ scopflow_Nc = 3
 hiop_verbosity_level = 0
 print_output = 0
 
-#[[profiler]]
-#tools = 'hpcrun'
-#tool_args = '--disable-auditor -t'
-#
-#[[profiler]]
-#tools = 'tau_exec'
-#tool_args = '-io'
+[[profiler]]
+tool = 'hpcrun'
+tool_args = '--disable-auditor -t -o /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
+
+[[profiler]]
+tool = 'tau_exec'
+tool_args = '-io'
+tool_envs = 'TAU_PROFILE=1 PROFILEDIR=/nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
+
+[[profiler]]
+tool = 'nvprof'
+tool_args = '--quiet'
 
 [[testcase]]
 scopflow_solver = 'IPOPT'
