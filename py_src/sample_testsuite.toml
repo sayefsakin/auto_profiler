@@ -1,4 +1,6 @@
 testsuite_name = "SCOPFLOW Functionality"
+application = "scopflow"
+mpi_rank = 1
 
 [presets]
 netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
@@ -8,14 +10,22 @@ scopflow_Nc = 3
 hiop_verbosity_level = 0
 print_output = 0
 
-[[testcase]]
-scopflow_solver = 'EMPAR'
-hiop_compute_mode = 'CPU'
-scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
-scopflow_subproblem_solver = 'IPOPT'
+#[[profiler]]
+#tools = 'hpcrun'
+#tool_args = '--disable-auditor -t'
+#
+#[[profiler]]
+#tools = 'tau_exec'
+#tool_args = '-io'
 
 [[testcase]]
 scopflow_solver = 'IPOPT'
 hiop_compute_mode = 'CPU'
-scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
-scopflow_subproblem_solver = 'IPOPT'
+scopflow_subproblem_model = 'POWER_BALANCE_HIOP'
+scopflow_subproblem_solver = 'HIOP'
+
+#[[testcase]]
+#scopflow_solver = 'EMPAR'
+#hiop_compute_mode = 'CPU'
+#scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+#scopflow_subproblem_solver = 'IPOPT'

@@ -1,0 +1,14 @@
+testsuite_name = "OPFLOW Functionality"
+application = "opflow"
+mpi_rank = 1
+
+[presets]
+netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
+hiop_verbosity_level = 0
+print_output = 0
+
+[[testcase]]
+opflow_solver = 'HIOP'
+hiop_compute_mode = 'CPU'
+opflow_subproblem_model = 'POWER_BALANCE_HIOP'
+
