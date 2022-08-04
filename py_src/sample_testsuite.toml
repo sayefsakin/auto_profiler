@@ -1,6 +1,7 @@
 testsuite_name = "SCOPFLOW Functionality"
 application = "scopflow"
 mpi_rank = 1
+iterations = 10
 
 [presets]
 netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
@@ -36,3 +37,9 @@ scopflow_solver = 'EMPAR'
 hiop_compute_mode = 'CPU'
 scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
 scopflow_subproblem_solver = 'IPOPT'
+
+[[testcase]]
+scopflow_solver = 'EMPAR'
+hiop_compute_mode = 'CPU'
+scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+scopflow_subproblem_solver = 'HIOPSPARSE'

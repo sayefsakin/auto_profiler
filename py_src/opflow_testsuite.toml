@@ -1,14 +1,41 @@
 testsuite_name = "OPFLOW Functionality"
-application = "opflow"
+application = 'opflow'
 mpi_rank = 1
+iterations = 10
 
 [presets]
 netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
 hiop_verbosity_level = 0
 print_output = 0
 
+[[profiler]]
+
+[[profiler]]
+tool = 'nvprof'
+tool_args = '--quiet'
+
+[[profiler]]
+tool = 'hpcrun'
+tool_args = '--disable-auditor -t -o /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
+
+[[profiler]]
+tool = 'tau_exec'
+tool_args = '-io'
+tool_envs = 'TAU_PROFILE=1 PROFILEDIR=/nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
+
 [[testcase]]
 opflow_solver = 'HIOP'
 hiop_compute_mode = 'CPU'
-opflow_subproblem_model = 'POWER_BALANCE_HIOP'
+opflow_model = 'POWER_BALANCE_HIOP'
+
+[[testcase]]
+opflow_solver = 'IPOPT'
+hiop_compute_mode = 'CPU'
+opflow_model = 'POWER_BALANCE_POLAR'
+
+[[testcase]]
+opflow_solver = 'HIOPSPARSE'
+hiop_compute_mode = 'CPU'
+opflow_model = 'POWER_BALANCE_POLAR'
+
 
