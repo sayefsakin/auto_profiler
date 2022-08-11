@@ -90,3 +90,8 @@ he doesn't have any experience in using the spack upstream functionality
 he mostly used separate spack environment on Summit.
 mentioned it took long time to compile.
 
+--------
+
+He used TAU to profile and generate otf2 data and then visualize using vampir. He faced difficulty in visualizeing process with more than 1000 nodes. 
+I suggested using Traveler https://github.com/hdc-arizona/traveler-integrated, is it can visualize OTF2 data.
+
