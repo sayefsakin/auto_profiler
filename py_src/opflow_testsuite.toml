@@ -6,7 +6,6 @@ iterations = 1
 [presets]
 #netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
 netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case_ACTIVSg2000.m'
-hiop_verbosity_level = 0
 print_output = 0
 
 [[profiler]]
@@ -28,7 +27,7 @@ print_output = 0
 opflow_solver = 'HIOP'
 hiop_compute_mode = 'GPU'
 opflow_model = 'POWER_BALANCE_HIOP'
-hiop_max_iter = 3
+hiop_max_iter = 1
 
 [[testcase]]
 opflow_solver = 'IPOPT'
@@ -36,10 +35,12 @@ hiop_compute_mode = 'CPU'
 opflow_model = 'POWER_BALANCE_POLAR'
 ipopt_max_iter = 5
 ipopt_print_level = 0
-#
-#[[testcase]]
-#opflow_solver = 'HIOPSPARSE'
-#hiop_compute_mode = 'CPU'
-#opflow_model = 'POWER_BALANCE_POLAR'
+
+[[testcase]]
+opflow_solver = 'HIOPSPARSE'
+hiop_compute_mode = 'CPU'
+hiop_max_iter = 5
+hiop_verbosity_level = 0
+opflow_model = 'POWER_BALANCE_POLAR'
 
 

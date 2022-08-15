@@ -27,7 +27,7 @@ def update_hiop_options(options, app):
     app_prefix = ''
     op_file_name = ''
     st_ind = 1
-    if options[app + '_solver'] == 'HIOP':
+    if options[app + '_solver'] == 'HIOP' or options[app + '_solver'] == 'HIOPSPARSE':
         app_prefix = 'hiop_'
         op_file_name = 'hiop.options'
         st_ind = 5
@@ -36,18 +36,21 @@ def update_hiop_options(options, app):
         op_file_name = 'ipopt.opt'
         st_ind = 6
     
-    for key in options:
-        if key.startswith(app_prefix):
-            hiop_key = key[st_ind:]
-            hiop_value = options[key]
-            hiops[hiop_key] = hiop_value
-            delList.append(key)
-    with open(op_file_name, 'w') as hof:
-        for key in hiops:
-            hof_str = key + ' ' + str(hiops[key])
-            hof.write(hof_str + '\n')
-    for dl in delList:
-        options.pop(dl, None)
+    if st_ind == 1:
+        hiops['max_iter'] = 1
+    else:
+        for key in options:
+            if key.startswith(app_prefix):
+                hiop_key = key[st_ind:]
+                hiop_value = options[key]
+                hiops[hiop_key] = hiop_value
+                delList.append(key)
+        with open(op_file_name, 'w') as hof:
+            for key in hiops:
+                hof_str = key + ' ' + str(hiops[key])
+                hof.write(hof_str + '\n')
+        for dl in delList:
+            options.pop(dl, None)
     return hiops
 
 
