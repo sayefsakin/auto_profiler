@@ -3,6 +3,7 @@ import toml
 import sys
 import shutil
 import os
+import io
 import time
 import re
 import math
@@ -97,16 +98,27 @@ def do_perf_measure(in_file):
             
             exago_runs_successfully = False
             suc_str = 'Finalizing ' + app_name + ' application.'
+            ON_POSIX = 'posix' in sys.builtin_module_names
+
+            # create a pipe to get data
+            input_fd, output_fd = os.pipe()
 
             time_lists = list()
             for i in range(iterations):
                 timeStarted = time.time()
-                proc = Popen(command, stdout=PIPE, universal_newlines=True, env=my_env)
+                #proc = Popen(command, stdout=PIPE, universal_newlines=True, bufsize=1, env=my_env)
+                proc = Popen(command, stdout=output_fd, universal_newlines=True, bufsize=1, env=my_env, close_fds=ON_POSIX)
+                os.close(output_fd)
+                with io.open(input_fd, 'r', buffering=1) as ff:
+                    for line in ff:
+                        print(line, end='')
+                        if exago_runs_successfully is False and suc_str in line:
+                            exago_runs_successfully = True
 
-                for line in proc.stdout.readlines():
-                    #print(line, end='')
-                    if exago_runs_successfully is False and suc_str in line:
-                        exago_runs_successfully = True
+                #for line in proc.stdout.readlines():
+                #    print(line, end='')
+                #    if exago_runs_successfully is False and suc_str in line:
+                #        exago_runs_successfully = True
     
                 timeDelta = time.time() - timeStarted
                 if exago_runs_successfully:
