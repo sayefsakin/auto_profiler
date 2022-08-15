@@ -6,7 +6,7 @@ iterations = 1
 [presets]
 #netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
 netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case_ACTIVSg2000.m'
-hiop_verbosity_level = 3
+hiop_verbosity_level = 0
 print_output = 0
 
 [[profiler]]
@@ -14,7 +14,7 @@ print_output = 0
 #[[profiler]]
 #tool = 'nvprof'
 #tool_args = '--profile-api-trace none --print-summary-per-gpu --log-file /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps/nvprofOutput'
-#
+
 #[[profiler]]
 #tool = 'hpcrun'
 #tool_args = '--disable-auditor -t -o /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
@@ -30,10 +30,12 @@ hiop_compute_mode = 'GPU'
 opflow_model = 'POWER_BALANCE_HIOP'
 hiop_max_iter = 3
 
-#[[testcase]]
-#opflow_solver = 'IPOPT'
-#hiop_compute_mode = 'CPU'
-#opflow_model = 'POWER_BALANCE_POLAR'
+[[testcase]]
+opflow_solver = 'IPOPT'
+hiop_compute_mode = 'CPU'
+opflow_model = 'POWER_BALANCE_POLAR'
+ipopt_max_iter = 5
+ipopt_print_level = 0
 #
 #[[testcase]]
 #opflow_solver = 'HIOPSPARSE'

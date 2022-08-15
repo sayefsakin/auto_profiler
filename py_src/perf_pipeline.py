@@ -21,16 +21,28 @@ def print_debug(level, str):
         print('Auto Profiler Log ======> ', end='')
         print(str)
 
-def update_hiop_options(options):
+def update_hiop_options(options, app):
     hiops = dict()
     delList = list()
+    app_prefix = ''
+    op_file_name = ''
+    st_ind = 1
+    if options[app + '_solver'] == 'HIOP':
+        app_prefix = 'hiop_'
+        op_file_name = 'hiop.options'
+        st_ind = 5
+    elif options[app + '_solver'] == 'IPOPT':
+        app_prefix = 'ipopt_'
+        op_file_name = 'ipopt.opt'
+        st_ind = 6
+    
     for key in options:
-        if key.startswith('hiop_'):
-            hiop_key = key[5:]
+        if key.startswith(app_prefix):
+            hiop_key = key[st_ind:]
             hiop_value = options[key]
             hiops[hiop_key] = hiop_value
             delList.append(key)
-    with open('hiop.options', 'w') as hof:
+    with open(op_file_name, 'w') as hof:
         for key in hiops:
             hof_str = key + ' ' + str(hiops[key])
             hof.write(hof_str + '\n')
@@ -107,8 +119,8 @@ def do_perf_measure(in_file):
             command.append(app_name)
 
             params.update(tests)
-            hiop_options = update_hiop_options(params)
-
+            hiop_options = update_hiop_options(params, app_name)
+            
             for key in params:
                 command.append('-'+ key)
                 command.append(str(params[key]))
@@ -152,10 +164,11 @@ def do_perf_measure(in_file):
             var  = sum(pow(x-avg_tm,2) for x in time_lists) / len(time_lists)
             avg_tm_str = str(round(avg_tm,5))
             avg_std = str(round(math.sqrt(var),5))
-            print_debug(0, "With " + tool_name + " Total Iterations: " + str(len(time_lists)) + ", Average time: " + avg_tm_str + " secs, std: " + avg_std)
+            print_debug(0, "With " + tool_name + " Total Iterations: " + str(len(time_lists)) + ", Average time: " + avg_tm_str + " seconds, std: " + avg_std)
             if 'max_iter' in hiop_options:
                 hiop_avg_time = str(round(avg_tm / hiop_options['max_iter'],5))
-                print_debug(0, "Total HIOP iterations: " + str(hiop_options['max_iter']) + ", Average time per HIOP iterations: " + hiop_avg_time + " secs")
+                solver_name = params[app_name + '_solver']
+                print_debug(0, "Total " + solver_name + " iterations: " + str(hiop_options['max_iter']) + ", Average time per " + solver_name + " iterations: " + hiop_avg_time + " seconds")
 
 if __name__ == '__main__':
     in_file = "sample_testsuite.toml"
