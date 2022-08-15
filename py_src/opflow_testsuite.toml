@@ -27,6 +27,7 @@ print_output = 0
 opflow_solver = 'HIOP'
 hiop_compute_mode = 'GPU'
 opflow_model = 'POWER_BALANCE_HIOP'
+hiop_verbosity_level = 3
 hiop_max_iter = 1
 
 [[testcase]]
@@ -34,13 +35,13 @@ opflow_solver = 'IPOPT'
 hiop_compute_mode = 'CPU'
 opflow_model = 'POWER_BALANCE_POLAR'
 ipopt_max_iter = 5
-ipopt_print_level = 0
+ipopt_print_level = 3
 
 [[testcase]]
 opflow_solver = 'HIOPSPARSE'
 hiop_compute_mode = 'CPU'
 hiop_max_iter = 5
-hiop_verbosity_level = 0
+hiop_verbosity_level = 3
 opflow_model = 'POWER_BALANCE_POLAR'
 
 

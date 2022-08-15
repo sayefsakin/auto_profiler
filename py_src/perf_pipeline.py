@@ -7,6 +7,7 @@ import io
 import time
 import re
 import math
+import copy
 from subprocess import call, Popen, PIPE
 
 #
@@ -62,7 +63,7 @@ def do_perf_measure(in_file):
         print_debug(0, "Please provide presets")
 
     app_name = testsuite['application']
-    params = testsuite['presets'];
+    preset_params = testsuite['presets'];
     iterations = 1
     if 'iterations' in testsuite:
         iterations = testsuite['iterations']
@@ -120,7 +121,8 @@ def do_perf_measure(in_file):
                 command.extend(profiler_cmd)
             
             command.append(app_name)
-
+            params = dict()
+            params = copy.deepcopy(preset_params)
             params.update(tests)
             hiop_options = update_hiop_options(params, app_name)
             
