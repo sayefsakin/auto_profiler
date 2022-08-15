@@ -18,7 +18,26 @@ DEBUG = 0
 
 def print_debug(level, str):
     if DEBUG>=level:
+        print('Auto Profiler Log ======> ', end='')
         print(str)
+
+def update_hiop_options(options):
+    hiops = dict()
+    delList = list()
+    for key in options:
+        if key.startswith('hiop_'):
+            hiop_key = key[5:]
+            hiop_value = options[key]
+            hiops[hiop_key] = hiop_value
+            delList.append(key)
+    with open('hiop.options', 'w') as hof:
+        for key in hiops:
+            hof_str = key + ' ' + str(hiops[key])
+            hof.write(hof_str + '\n')
+    for dl in delList:
+        options.pop(dl, None)
+    return hiops
+
 
 def do_perf_measure(in_file):
     testsuite = toml.load(in_file)
@@ -88,6 +107,8 @@ def do_perf_measure(in_file):
             command.append(app_name)
 
             params.update(tests)
+            hiop_options = update_hiop_options(params)
+
             for key in params:
                 command.append('-'+ key)
                 command.append(str(params[key]))
@@ -131,7 +152,10 @@ def do_perf_measure(in_file):
             var  = sum(pow(x-avg_tm,2) for x in time_lists) / len(time_lists)
             avg_tm_str = str(round(avg_tm,5))
             avg_std = str(round(math.sqrt(var),5))
-            print_debug(0, "With " + tool_name + " Average time: " + avg_tm_str + " secs with std: " + avg_std)
+            print_debug(0, "With " + tool_name + " Total Iterations: " + str(len(time_lists)) + ", Average time: " + avg_tm_str + " secs, std: " + avg_std)
+            if 'max_iter' in hiop_options:
+                hiop_avg_time = str(round(avg_tm / hiop_options['max_iter'],5))
+                print_debug(0, "Total HIOP iterations: " + str(hiop_options['max_iter']) + ", Average time per HIOP iterations: " + hiop_avg_time + " secs")
 
 if __name__ == '__main__':
     in_file = "sample_testsuite.toml"
