@@ -135,8 +135,8 @@ def do_perf_measure(in_file):
             hiop_options = update_hiop_options(params, app_name)
             
             for key in params:
-                if key == 'command_list':
-                    cls = params[key]
+                if key == 'argument_list':
+                    cls = params[key].split()
                     for cl in cls:
                         command.append('-'+ cl)
                 else:
@@ -163,7 +163,7 @@ def do_perf_measure(in_file):
                 with io.open(input_fd, 'r', buffering=1) as ff:
                     for line in ff:
                         timeDelta = timeDelta + time.time() - timeStarted
-                        print(line, end='')
+                        #print(line, end='')
                         petSCTime = get_solve_time_from_petsc(line, app_name)
                         if petSCTime > -1:
                             petsc_time.append(petSCTime)
