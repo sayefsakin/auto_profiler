@@ -1,0 +1,39 @@
+testsuite_name = "SCOPFLOW Functionality"
+application = "scopflow"
+mpi_rank = 1
+
+[presets]
+netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case_ACTIVSg2000.m'
+ctgcfile = '/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case_ACTIVSg2000.cont'
+scopflow_mode = 1
+scopflow_Nc = 1
+print_output = 0
+
+[[profiler]]
+
+#[[profiler]]
+#tool = 'hpcrun'
+#tool_args = '--disable-auditor -t -o /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
+#
+#[[profiler]]
+#tool = 'tau_exec'
+#tool_args = '-io'
+#tool_envs = 'TAU_PROFILE=1 PROFILEDIR=/nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps'
+#
+#[[profiler]]
+#tool = 'nvprof'
+#tool_args = '--quiet'
+
+[[testcase]]
+scopflow_solver = 'IPOPT'
+hiop_compute_mode = 'CPU'
+scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+scopflow_subproblem_solver = 'IPOPT'
+ipopt_max_iter = 10
+hiop_verbosity_level = 0
+
+#[[testcase]]
+#scopflow_solver = 'EMPAR'
+#hiop_compute_mode = 'GPU'
+#scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+#scopflow_subproblem_solver = 'IPOPT'

@@ -54,6 +54,14 @@ def update_hiop_options(options, app):
             options.pop(dl, None)
     return hiops
 
+def get_solve_time_from_petsc(line, appName):
+    if appName.casefold() == 'opflow':
+        solverLineParser = re.compile('^(OPFLOWSolve)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+e[+-]\d+)')
+        solverLineMatch = solverLineParser.match(line)
+        if solverLineMatch is not None:
+            print_debug(2, 'solver line found')
+            return float(solverLineMatch.group(4))
+    return -1
 
 def do_perf_measure(in_file):
     testsuite = toml.load(in_file)
@@ -127,53 +135,71 @@ def do_perf_measure(in_file):
             hiop_options = update_hiop_options(params, app_name)
             
             for key in params:
-                command.append('-'+ key)
-                command.append(str(params[key]))
+                if key == 'command_list':
+                    cls = params[key]
+                    for cl in cls:
+                        command.append('-'+ cl)
+                else:
+                    command.append('-'+ key)
+                    command.append(str(params[key]))
+
             print_debug(2, command)
             print_debug(2, '----')
-            #command = ['ls', '-l']
-            #call(command)
             
             exago_runs_successfully = False
             suc_str = 'Finalizing ' + app_name + ' application.'
             ON_POSIX = 'posix' in sys.builtin_module_names
 
-            # create a pipe to get data
-            input_fd, output_fd = os.pipe()
 
             time_lists = list()
+            petsc_time = list()
             for i in range(iterations):
                 timeStarted = time.time()
-                #proc = Popen(command, stdout=PIPE, universal_newlines=True, bufsize=1, env=my_env)
+                timeDelta = 0
+                # create a pipe to get data
+                input_fd, output_fd = os.pipe()
                 proc = Popen(command, stdout=output_fd, universal_newlines=True, bufsize=1, env=my_env, close_fds=ON_POSIX)
                 os.close(output_fd)
                 with io.open(input_fd, 'r', buffering=1) as ff:
                     for line in ff:
+                        timeDelta = timeDelta + time.time() - timeStarted
                         print(line, end='')
+                        petSCTime = get_solve_time_from_petsc(line, app_name)
+                        if petSCTime > -1:
+                            petsc_time.append(petSCTime)
                         if exago_runs_successfully is False and suc_str in line:
                             exago_runs_successfully = True
+                        timeStarted = time.time()
 
-                #for line in proc.stdout.readlines():
-                #    print(line, end='')
-                #    if exago_runs_successfully is False and suc_str in line:
-                #        exago_runs_successfully = True
-    
-                timeDelta = time.time() - timeStarted
                 if exago_runs_successfully:
                     print_debug(1, app_name + " runs successfully")
                     time_lists.append(timeDelta)
                     print_debug(2, "Total measured time with " + tool_name + ": " + str(round(timeDelta,5)) + " seconds.")
                 else:
                     print_debug(0, app_name + " did NOT run with " + tool_name)
+
+
             avg_tm = sum(time_lists) / len(time_lists)
             var  = sum(pow(x-avg_tm,2) for x in time_lists) / len(time_lists)
             avg_tm_str = str(round(avg_tm,5))
             avg_std = str(round(math.sqrt(var),5))
-            print_debug(0, "With " + tool_name + " Total Iterations: " + str(len(time_lists)) + ", Average time: " + avg_tm_str + " seconds, std: " + avg_std)
+            cm = 'CPU'
+
+            if 'compute_mode' in hiop_options:
+                cm = hiop_options['compute_mode']
+            print_debug(0, "With " + tool_name + " Total Iterations: " + str(len(time_lists)) + ", " + cm + " Average time: " + avg_tm_str + " seconds, std: " + avg_std)
+            if len(petsc_time) > 0:
+                avg_petsc = sum(petsc_time) / len(petsc_time)
+                avg_petsc_str = str(round(avg_petsc, 5))
+                print_debug(0, "PETSc reported Solve Time: " + avg_petsc_str + " seconds")
+            
             if 'max_iter' in hiop_options:
                 hiop_avg_time = str(round(avg_tm / hiop_options['max_iter'],5))
                 solver_name = params[app_name + '_solver']
                 print_debug(0, "Total " + solver_name + " iterations: " + str(hiop_options['max_iter']) + ", Average time per " + solver_name + " iterations: " + hiop_avg_time + " seconds")
+                if len(petsc_time) > 0:
+                    p_avg_time = str(round(avg_petsc / hiop_options['max_iter'],5))
+                    print_debug(0, "PETSc reported Solve time per iterations: " + p_avg_time)
 
 if __name__ == '__main__':
     in_file = "sample_testsuite.toml"
