@@ -1,11 +1,11 @@
 testsuite_name = "SCOPFLOW Functionality"
 application = "scopflow"
 mpi_rank = 1
-iterations = 10
+iterations = 1
 
 [presets]
-netfile ='/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9mod.m'
-ctgcfile = '/nfs/gce/projects/ExaGO/exago_src/exago/datafiles/case9/case9.cont'
+netfile = '../datafiles/case_ACTIVSg200.m'
+ctgcfile = '../datafiles/case_ACTIVSg200.cont'
 scopflow_mode = 1
 scopflow_Nc = 3
 hiop_verbosity_level = 0
@@ -24,13 +24,13 @@ tool_envs = 'TAU_PROFILE=1 PROFILEDIR=/nfs/gce/projects/ExaGO/auto_profiler/prof
 
 [[profiler]]
 tool = 'nvprof'
-tool_args = '--quiet'
+tool_args = '--log-file /nfs/gce/projects/ExaGO/auto_profiler/profiler_dumps/nvprofOutput'
 
 [[testcase]]
 scopflow_solver = 'IPOPT'
 hiop_compute_mode = 'CPU'
-scopflow_subproblem_model = 'POWER_BALANCE_HIOP'
-scopflow_subproblem_solver = 'HIOP'
+scopflow_subproblem_model = 'POWER_BALANCE_POLAR'
+scopflow_subproblem_solver = 'IPOPT'
 
 [[testcase]]
 scopflow_solver = 'EMPAR'
