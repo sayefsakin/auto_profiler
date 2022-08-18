@@ -12,16 +12,20 @@ from subprocess import call, Popen, PIPE
 
 #
 # Print Debug levels
-# 0: basic
-# 1: moderate
-# 2: all
+# 0: basic, will only print default output like execution time.
+# 1: moderate, Additionally prints exago output and error messages, like file not found.
+# 2: all, output everything.
 DEBUG = 0
 
+# Defining the debug level. 
+# Just a wrapper to print function, with the conditional debug level.
 def printDebug(level, str):
     if DEBUG>=level:
         print('Auto Profiler Log ======> ', end='')
         print(str)
 
+# populate key and values for hiop.options or ipopt.opt files
+# Create necessary input file for Exago solvers
 def updateHiopOptions(options, app):
     hiops = dict()
     delList = list()
@@ -54,6 +58,7 @@ def updateHiopOptions(options, app):
             options.pop(dl, None)
     return hiops
 
+# Using regex to find the OPFLOWSolve line from the PETSc log
 def getSolveTimeFromPetsc(line, appName):
     if appName.casefold() == 'opflow':
         solver_line_parser = re.compile('^(OPFLOWSolve)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+e[+-]\d+)')
@@ -63,7 +68,7 @@ def getSolveTimeFromPetsc(line, appName):
             return float(solver_line_match.group(4))
     return -1
 
-
+# Printing logs, iteration count, total and average time
 def printTimingInfo(params, hiop_options, time_lists, petsc_time, app_name, tool_name):
     avg_tm = sum(time_lists) / len(time_lists)
     var  = sum(pow(x-avg_tm,2) for x in time_lists) / len(time_lists)
@@ -87,7 +92,9 @@ def printTimingInfo(params, hiop_options, time_lists, petsc_time, app_name, tool
             p_avg_time = str(round(avg_petsc / hiop_options['max_iter'],5))
             printDebug(0, "PETSc reported Solve time per iterations: " + p_avg_time)
 
-
+# doing automated performance measurement
+# this will read from TOML file, parse it, and populate the data into a dictionary
+# Then it will execute the application as a subprocess with the provided command line arguments from TOML file.
 def doPerfMeasure(in_file):
     testsuite = toml.load(in_file)
     if 'application' not in testsuite:
@@ -204,6 +211,9 @@ def doPerfMeasure(in_file):
             printTimingInfo(params, hiop_options, time_lists, petsc_time, app_name, tool_name)
 
 
+# Main file. This checks if a file name is provided
+# if not it will try to read the deafult file
+# and calls the doPerfMeasure
 if __name__ == '__main__':
     in_file = "sample_testsuite.toml"
     if len(sys.argv) > 1:
